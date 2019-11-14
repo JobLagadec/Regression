@@ -6,6 +6,7 @@ import pandas as pda
 from sklearn.preprocessing import scale
 
 housing_file = "data_regression/HousingData.csv"
+prostate_file = "data_regression/prostate.data"
 
 """auteur: Alexis """
 
@@ -46,8 +47,8 @@ def normalize_data(data):
         res[:,k] = res[:,k]/maxes[k]
     return res
 
-clean_data = clean_csv_data(housing_data)
-normalized_data = normalize_data(clean_data)
+cleaned_housing_data = clean_csv_data(housing_data)
+normalized_housing_data = normalize_data(cleaned_housing_data)
 
 """auteur: Alexis """
 
@@ -55,7 +56,7 @@ normalized_data = normalize_data(clean_data)
 """
 auteur : Tom Dauvé
 """
-def load_data(filepath):
+def load_data_data(filepath):
     df = pda.read_table(filepath)
     data = df.values
     output  = []
@@ -66,10 +67,15 @@ def load_data(filepath):
 """
 auteur : Tom Dauvé
 """
-def clean_data(data):
+def clean_data_data(data):
     for i in range(len(data)):
         if(data[i][-1] == 'T'):
             data[i][-1] = 1
         else:
             data[i][-1] = 0
     return np.array(data)
+
+
+prostate_data = load_data(prostate_file)
+cleaned_prostate_data =  clean_data(prostate_data)
+normalized_prostate_data = normalize_data(cleaned_prostate_data)
