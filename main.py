@@ -13,10 +13,13 @@ prostate_file = "data_regression/prostate.data"
 def load_csv(file_name):
     csv_data = pda.read_csv(file_name)
     data = csv_data.values
-    return data
+    targets = data[:,-1]
+    data = data[:,:-1]
+    return data, targets
 
-housing_data = load_csv(housing_file)
+#housing_data = load_csv(housing_file)
 
+"""auteur: Alexis """
 def mean(column):
     l = len(column)
     mean = 0
@@ -25,6 +28,7 @@ def mean(column):
             mean += column[k]
     return mean/l
 
+"""auteur: Alexis """
 def clean_csv_data(data):
     n, m = data.shape
     res = data
@@ -37,7 +41,8 @@ def clean_csv_data(data):
             if (np.isnan(data[i][j])):
                 res[i][j] = means[j]
     return res
-    
+
+"""auteur: Alexis """   
 def normalize_data(data):
     res = data
     n, m = data.shape
@@ -47,10 +52,8 @@ def normalize_data(data):
         res[:,k] = res[:,k]/maxes[k]
     return res
 
-cleaned_housing_data = clean_csv_data(housing_data)
-normalized_housing_data = normalize_data(cleaned_housing_data)
-
-"""auteur: Alexis """
+#cleaned_housing_data = clean_csv_data(housing_data)
+#normalized_housing_data = normalize_data(cleaned_housing_data)
 
 
 """
@@ -76,6 +79,23 @@ def clean_data_data(data):
     return np.array(data)
 
 
-prostate_data = load_data(prostate_file)
-cleaned_prostate_data =  clean_data(prostate_data)
+prostate_data = load_data_data(prostate_file)
+cleaned_prostate_data =  clean_data_data(prostate_data)
 normalized_prostate_data = normalize_data(cleaned_prostate_data)
+
+"""auteur: Alexis """ 
+def get_trainable_data(file):
+    if (".data" in file):
+        prostate_data = load_data_data(prostate_file)
+        cleaned_prostate_data =  clean_data_data(prostate_data)
+        normalized_prostate_data = normalize_data(cleaned_prostate_data)
+        x = normalized_prostate_data
+    elif(".csv" in file):
+        housing_data, y = load_csv(housing_file)
+        cleaned_housing_data = clean_csv_data(housing_data)
+        x = normalize_data(cleaned_housing_data)
+    else:
+        return ("file format not supported yet by this code, our engineers are currently working on it")
+    
+    return (x,y)
+
