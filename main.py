@@ -57,41 +57,41 @@ def normalize_data(data):
 
 
 """
-auteur : Tom Dauvé
+auteur : Tom Dauve
 """
 def load_data_data(filepath):
     df = pda.read_table(filepath)
     data = df.values
     output  = []
     for i in range(len(data)):
-        output.append(data[i][1:])
-    return output
+        output.append(data[i][1:len(data[i])-1])
+    y = [output[i][-1] for i in range(len(output))]
+    return np.array(output), np.array(y)
 
 """
-auteur : Tom Dauvé
+auteur : Tom Dauve
 """
+#this function should not be used.
 def clean_data_data(data):
     for i in range(len(data)):
         if(data[i][-1] == 'T'):
             data[i][-1] = 1
         else:
             data[i][-1] = 0
-    return np.array(data)
+    return np.array(data, dtype = float)
 
 
-prostate_data = load_data_data(prostate_file)
-cleaned_prostate_data =  clean_data_data(prostate_data)
-normalized_prostate_data = normalize_data(cleaned_prostate_data)
+prostate_data, y = load_data_data(prostate_file)
+normalized_prostate_data = normalize_data(prostate_data)
 
 """auteur: Alexis """ 
 def get_trainable_data(file):
     if (".data" in file):
-        prostate_data = load_data_data(prostate_file)
-        cleaned_prostate_data =  clean_data_data(prostate_data)
+        cleaned_prostate_data, y = load_data_data(file)
         normalized_prostate_data = normalize_data(cleaned_prostate_data)
         x = normalized_prostate_data
     elif(".csv" in file):
-        housing_data, y = load_csv(housing_file)
+        housing_data, y = load_csv(file)
         cleaned_housing_data = clean_csv_data(housing_data)
         x = normalize_data(cleaned_housing_data)
     else:
@@ -104,8 +104,8 @@ def get_trainable_data(file):
 def get_train_test_sets(x_data, y_data, train_ratio = 0.75) :
     (nb_rows, nb_col) = np.shape(x_data)
     
-    # shuffle data, necessaire si données déjà ordonnées
-    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    # shuffle data, necessaire si donnees deja ordonnees
+    y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
     np.random.shuffle(data)
     
@@ -122,7 +122,7 @@ def get_train_test_sets(x_data, y_data, train_ratio = 0.75) :
 
 """ Pour les regression
 reg.coef_ = coefficients directeur
-reg.intercept_ = ordonnée à l'origine
+reg.intercept_ = ordonnee a l'origine
 reg.score(x_test_set,y_test_set) = coefficient of determination R^2 of the prediction
 reg.predict(x_test_set) = prediction of the test set depending on the trained model
 """
@@ -163,19 +163,19 @@ x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, 
 """ auteur: Pierre-Adrien """
 def Matrix_Plot(x_data,y_data): ## !! seulement pour housing.data
     col_name = ['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV']
-    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
     xy_df = pda.DataFrame(data, columns=col_name)
     pda.plotting.scatter_matrix(xy_df, alpha=1, figsize=(15, 15))
     plt.show()
     
 def Correlation_Matrix(x_data, y_data):
-    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.corrcoef(np.transpose(data))
 
 def Covariance_Matrix(x_data, y_data):
-    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation  
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.cov(np.transpose(data))
     
