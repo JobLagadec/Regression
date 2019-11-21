@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import sklearn
+from sklearn import linear_model, svm, tree, neural_network
 from math import *
 import pandas as pda
 from sklearn.preprocessing import scale
@@ -117,6 +117,68 @@ def get_train_test_sets(x_data, y_data, train_ratio = 0.75) :
     x_test_set , y_test_set = test_set[:,:nb_col] , test_set[:,nb_col]
     
     return x_train_set , y_train_set , x_test_set , y_test_set
+
+""" auteur: Pierre-Adrien """
+
+""" Pour les regression
+reg.coef_ = coefficients directeur
+reg.intercept_ = ordonnée à l'origine
+reg.score(x_test_set,y_test_set) = coefficient of determination R^2 of the prediction
+reg.predict(x_test_set) = prediction of the test set depending on the trained model
+"""
+def Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
+    reg = linear_model.LinearRegression()
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.coef_ , reg.intercept_ , reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+def Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
+    reg = linear_model.RidgeCV()
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.coef_ , reg.intercept_ , reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+def Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
+    reg = linear_model.LassoCV(cv=5)
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.coef_ , reg.intercept_ , reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+def SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set,kernel="linear"):
+    reg = svm.SVR(gamma='auto',kernel=kernel)
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+def Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
+    reg = tree.DecisionTreeRegressor()
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+def NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
+    reg = neural_network.MLPRegressor()
+    reg.fit(x_train_set, y_train_set) # train the model
+    return reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
+
+
+(x,y) = get_trainable_data(housing_file)
+x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
+
+""" auteur: Pierre-Adrien """
+def Matrix_Plot(x_data,y_data): ## !! seulement pour housing.data
+    col_name = ['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV']
+    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    data = np.concatenate((x_data,y_data),axis = 1)
+    xy_df = pda.DataFrame(data, columns=col_name)
+    pda.plotting.scatter_matrix(xy_df, alpha=1, figsize=(15, 15))
+    plt.show()
+    
+def Correlation_Matrix(x_data, y_data):
+    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    data = np.concatenate((x_data,y_data),axis = 1)
+    return np.corrcoef(np.transpose(data))
+
+def Covariance_Matrix(x_data, y_data):
+    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    data = np.concatenate((x_data,y_data),axis = 1)
+    return np.cov(np.transpose(data))
+    
 
 
 
