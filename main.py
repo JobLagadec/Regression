@@ -99,3 +99,26 @@ def get_trainable_data(file):
     
     return (x,y)
 
+
+""" auteur: Pierre-Adrien """
+def get_train_test_sets(x_data, y_data, train_ratio = 0.75) :
+    (nb_rows, nb_col) = np.shape(x_data)
+    
+    # shuffle data, necessaire si données déjà ordonnées
+    y_data = np.reshape(y_data, (len(y_data),1)) # nécessaire pour concaténation 
+    data = np.concatenate((x_data,y_data),axis = 1)
+    np.random.shuffle(data)
+    
+    train_set_size = int(train_ratio * nb_rows)
+    
+    train_set = data[0:train_set_size,:]
+    test_set = data[train_set_size:,:]
+    x_train_set , y_train_set = train_set[:,:nb_col] , train_set[:,nb_col]
+    x_test_set , y_test_set = test_set[:,:nb_col] , test_set[:,nb_col]
+    
+    return x_train_set , y_train_set , x_test_set , y_test_set
+
+
+
+
+
