@@ -19,13 +19,15 @@ def load_csv(file_name):
 
 #housing_data = load_csv(housing_file)
 
-"""auteur: Alexis """
+"""auteurs: Alexis, Corentin """
 def mean(column):
     l = len(column)
     mean = 0
     for k in range(l):
         if(np.isnan(column[k]) == False):
             mean += column[k]
+        else:
+            l-=1
     return mean/l
 
 """auteur: Alexis """
@@ -183,4 +185,3 @@ def Covariance_Matrix(x_data, y_data):
 
 
 
-fheiorhnzfuilazberuilgvbzrueio
