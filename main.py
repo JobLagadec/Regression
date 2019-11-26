@@ -4,11 +4,13 @@ from sklearn import linear_model, svm, tree, neural_network
 from math import *
 import pandas as pda
 from sklearn.preprocessing import scale
+from sklearn.decomposition import PCA
+from mpl_toolkits import mplot3d
 
 housing_file = "data_regression/HousingData.csv"
 prostate_file = "data_regression/prostate.data"
 
-"""auteur: Alexis """
+"""auteur: Alexis"""
 
 def load_csv(file_name):
     csv_data = pda.read_csv(file_name)
@@ -42,7 +44,7 @@ def clean_csv_data(data):
                 res[i][j] = means[j]
     return res
 
-"""auteur: Alexis """   
+"""auteur: Alexis Guermont"""   
 def normalize_data(data):
     res = data
     n, m = data.shape
@@ -81,7 +83,7 @@ def clean_data_data(data):
     return np.array(data, dtype = float)
 
 
-prostate_data, y = load_data_data(prostate_file)
+prostate_data, prostate_labels = load_data_data(prostate_file)
 normalized_prostate_data = normalize_data(prostate_data)
 
 """auteur: Alexis """ 
@@ -178,6 +180,22 @@ def Covariance_Matrix(x_data, y_data):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation  
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.cov(np.transpose(data))
+
+
+"""auteur : Tom Dauve"""
+def PCA_function(data, labels):
+    pca = PCA(n_components = 2)
+    pc = pca.fit_transform(data, labels)
+    plt.scatter(pc[:,0], labels)
+    plt.title('target function of PC1')
+    plt.show()
+
+    ax = plt.axes(projection='3d')
+    ax.scatter3D(pc[:,0], pc[:,1], labels)
+    plt.show()
+    return pc
+
+
 
 """auteur: Alexis """       
 #Function to approximate a gaussian (evaluated on x) that fits the points in data
