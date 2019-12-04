@@ -17,7 +17,8 @@ def load_csv(file_name):
     data = csv_data.values
     targets = data[:,-1]
     data = data[:,:-1]
-    return data, targets
+    labels = list(csv_data.columns)
+    return data, targets, labels
 
 #housing_data = load_csv(housing_file)
 
@@ -64,11 +65,12 @@ auteur : Tom Dauve
 def load_data_data(filepath):
     df = pda.read_table(filepath)
     data = df.values
-    output  = data[:,:9]
+    output  = data[:,1:9]
     #for i in range(len(data)):
         #output.append(data[i][1:len(data[i])-1])
     y = data[:,9]
-    return np.array(output), np.array(y)
+    labels = list(df.columns)[1:10]
+    return np.array(output), np.array(y), labels
 
 """
 auteur : Tom Dauve
@@ -82,24 +84,24 @@ def clean_data_data(data):
             data[i][-1] = 0
     return np.array(data, dtype = float)
 
-
+"""
 prostate_data, prostate_labels = load_data_data(prostate_file)
-normalized_prostate_data = normalize_data(prostate_data)
+normalized_prostate_data = normalize_data(prostate_data)"""
 
 """auteur: Alexis """ 
 def get_trainable_data(file):
     if (".data" in file):
-        cleaned_prostate_data, y = load_data_data(file)
+        cleaned_prostate_data, y,labels = load_data_data(file)
         normalized_prostate_data = normalize_data(cleaned_prostate_data)
         x = normalized_prostate_data
     elif(".csv" in file):
-        housing_data, y = load_csv(file)
+        housing_data, y, labels = load_csv(file)
         cleaned_housing_data = clean_csv_data(housing_data)
         x = normalize_data(cleaned_housing_data)
     else:
         return ("file format not supported yet by this code, our engineers are currently working on it")
     
-    return (x,y)
+    return (x,y,labels)
 
 
 """ auteur: Pierre-Adrien """
@@ -158,16 +160,12 @@ def NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
     reg.fit(x_train_set, y_train_set) # train the model
     return reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
 
-
-(x,y) = get_trainable_data(housing_file)
-x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
-
 """ auteur: Pierre-Adrien """
-def Matrix_Plot(x_data,y_data): ## !! seulement pour housing.data
-    col_name = ['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV']
+def Matrix_Plot(x_data,y_data,labels):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
-    xy_df = pda.DataFrame(data, columns=col_name)
+    data = data.astype(np.float)
+    xy_df = pda.DataFrame(data, columns=labels)
     pda.plotting.scatter_matrix(xy_df, alpha=1, figsize=(15, 15))
     plt.show()
     
@@ -181,11 +179,16 @@ def Covariance_Matrix(x_data, y_data):
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.cov(np.transpose(data))
 
+(x,y,labels) = get_trainable_data(prostate_file)
+(x,y,labels) = get_trainable_data(housing_file) 
+x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
+
 
 """auteur : Tom Dauve"""
 def PCA_function(data, labels):
     pca = PCA(n_components = 2)
     pc = pca.fit_transform(data, labels)
+    print(pc,labels)
     plt.scatter(pc[:,0], labels)
     plt.title('target function of PC1')
     plt.show()
@@ -194,7 +197,6 @@ def PCA_function(data, labels):
     ax.scatter3D(pc[:,0], pc[:,1], labels)
     plt.show()
     return pc
-
 
 
 """auteur: Alexis """       
@@ -255,7 +257,7 @@ def mse(target, estimation):
         res += (target[k] - estimation[k])**2
     return res/n
 
-x, y = get_trainable_data(prostate_file)
+x, y, _ = get_trainable_data(prostate_file)
 l = np.arange(-0.5, 6, 0.1)
 y_hat = kde(l, y, h=0.1)
 
