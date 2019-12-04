@@ -188,7 +188,6 @@ x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, 
 def PCA_function(data, labels):
     pca = PCA(n_components = 2)
     pc = pca.fit_transform(data, labels)
-    print(pc,labels)
     plt.scatter(pc[:,0], labels)
     plt.title('target function of PC1')
     plt.show()
@@ -256,7 +255,7 @@ def mse(target, estimation):
     for k in range(n):
         res += (target[k] - estimation[k])**2
     return res/n
-
+"""
 x, y, _ = get_trainable_data(prostate_file)
 l = np.arange(-0.5, 6, 0.1)
 y_hat = kde(l, y, h=0.1)
@@ -271,3 +270,97 @@ print("mean squared error on whole dataset = " + str(mse(y, y_all)))
 plt.scatter(x[:,0], y)
 plt.scatter(x[:,0], y_all, c='r')
 plt.show()
+"""
+def Get_Accuracy(x, y):
+    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
+    accuracy = 6 * [0]
+    
+    _, _, _, prediction = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy[0] = mse(y_test_set, prediction)
+    _, _, _, prediction = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy[1] = mse(y_test_set, prediction)
+    _, _, _, prediction = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy[2] = mse(y_test_set, prediction)
+    _, prediction = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set,kernel="linear")
+    accuracy[3] = mse(y_test_set, prediction)
+    _, prediction = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy[4] = mse(y_test_set, prediction)
+    _, prediction = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy[5] = mse(y_test_set, prediction)
+    
+    return accuracy
+
+def run():
+    inpu = ""
+    while inpu != "housing" and inpu != "prostate" and inpu != "exit" :
+        inpu = input("Choisir une base de donnée ('housing' ou 'prostate') ou 'exit': \n")
+    if inpu == "exit":
+        return
+    elif inpu == "housing" :
+        file = "data_regression/HousingData.csv"
+    elif inpu == "prostate":
+        file = "data_regression/prostate.data"
+        
+    x ,y , labels = get_trainable_data(file)
+    
+    inpu = ""
+    while inpu != "Covariance_Matrix" and inpu != "pass" :
+        inpu = input("Matrice de covariance ('Covariance_Matrix' ou 'pass') : \n")
+    if inpu == "Covariance_Matrix":
+        print(Covariance_Matrix(x, y))
+    elif inpu == "pass" :
+        pass
+    
+    inpu = ""
+    while inpu != "Matrix_Plot" and inpu != "pass" :
+        inpu = input("Représentation des composants 2 par 2 ('Matrix_Plot' ou 'pass') : \n")
+    if inpu == "Matrix_Plot":
+        Matrix_Plot(x, y, labels)
+    elif inpu == "pass" :
+        pass
+    
+    inpu = ""
+    while inpu != "y" and inpu != "n" :
+        inpu = input("Comparer avec PCA et sans ou séparément ('y' ou 'n') : \n")
+    if inpu == "y":
+        accuracy_without_PCA = Get_Accuracy(x,y)
+        x = PCA_function(x, y)
+        x = normalize_data(x)
+        accuracy_PCA = Get_Accuracy(x,y)
+        accuracy = [[accuracy_without_PCA;accuracy_PCA]]
+    elif inpu == "n" :
+        inpu = ""
+        while inpu != "PCA" and inpu != "pass" :
+            inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
+        if inpu == "PCA":
+            x = PCA_function(x, y)
+            x = normalize_data(x)
+            accuracy = Get_Accuracy(x,y)
+        elif inpu == "pass" :
+            accuracy = Get_Accuracy(x,y)
+    
+    
+    print(accuracy)
+    return 0
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
