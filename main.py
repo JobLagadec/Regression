@@ -185,15 +185,14 @@ x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, 
 
 
 """auteur : Tom Dauve"""
-def PCA_function(data, labels):
+def PCA_function(data, targets):
     pca = PCA(n_components = 2)
-    pc = pca.fit_transform(data, labels)
-    plt.scatter(pc[:,0], labels)
+    pc = pca.fit_transform(data, targets)
+    plt.scatter(pc[:,0], targets)
     plt.title('target function of PC1')
     plt.show()
-
     ax = plt.axes(projection='3d')
-    ax.scatter3D(pc[:,0], pc[:,1], labels)
+    ax.scatter3D(pc[:,0], pc[:,1], targets)
     plt.show()
     return pc
 
