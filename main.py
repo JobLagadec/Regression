@@ -26,7 +26,7 @@ def mean(column):
     for k in range(l):
         if(np.isnan(column[k]) == False):
             mean += column[k]
-        else:
+        else: #we should not consider the unknown elements
             l-=1
     return mean/l
 
@@ -181,7 +181,106 @@ def Covariance_Matrix(x_data, y_data):
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.cov(np.transpose(data))
     
+def run():
+    inpu = ""
+    while inpu != "housing" and inpu != "prostate" and inpu != "exit" :
+        inpu = input("Choisir une base de donnée ('housing' ou 'prostate') ou 'exit': \n")
+    if inpu == "exit":
+        return
+    elif inpu == "housing" :
+        file = "data_regression/HousingData.csv"
+    elif inpu == "prostate":
+        file = "data_regression/prostate.data"
+        
+    x ,y = get_trainable_data(file)
+    
+    inpu = ""
+    while inpu != "Covariance_Matrix" and inpu != "pass" :
+        inpu = input("Matrice de covariance ('Covariance_Matrix' ou 'pass') : \n")
+    if inpu == "Covariance_Matrix":
+        print(Covariance_Matrix(x, y))
+    elif inpu == "pass" :
+        pass
+    
+    inpu = ""
+    while inpu != "Matrix_Plot" and inpu != "pass" :
+        inpu = input("Représentation des composants 2 par 2 ('Matrix_Plot' ou 'pass') : \n")
+    if inpu == "Matrix_Plot":
+        Matrix_Plot(x, y)
+    elif inpu == "pass" :
+        pass
+    
+#    inpu = ""
+#    while inpu != "y" and inpu != "n" :
+#        inpu = input("Comparer avec et sans PCA ou séparément ('y' ou 'n') : \n")
+#    if inpu == "y":
+#        accuracy_without_PCA = Get_Accuracy(x,y)
+#        x = PCA_function(x, y)
+#        x = normalize_data(x)
+#        accuracy_PCA = Get_Accuracy(x,y)
+#        accuracy = [[accuracy_without_PCA,accuracy_PCA]]
+#    el    if inpu == "n" :
+#        inpu = ""
+#        while inpu != "PCA" and inpu != "pass" :
+#            inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
+#        if inpu == "PCA":
+#            x = PCA_function(x, y)
+#            x = normalize_data(x)
+#            accuracy = Get_Accuracy(x,y)
+#        elif inpu == "pass" :
+#            accuracy = Get_Accuracy(x,y)
 
+    inpu = ""
+    while inpu != "PCA" and inpu != "pass" :
+        inpu = input("Sélection de composants ('PCA' ou 'pass' (Ne pas choisir PCA !)) : \n")
+        if inpu == "PCA":
+            x = PCA_function(x, y)
+            x = normalize_data(x)
+
+    inpu = ""
+    while inpu != "1" and inpu != "2" and inpu != "3" and inpu != "4" and inpu != "5" and inpu != "6":
+        if inpu == "help":
+            inpu = input("no_model : 1 -> least square regression\n\t\t 2 -> ridge with cross validation\n\t\t 3 -> lasso with cross validation\n\t\t 4 -> SVM regression\n\t\t 5 -> tree regression\n\t\t 6 -> neural network regression")
+        else:
+            inpu = input("Choose your model (n° : 1 - 6), or type 'help' for more information :\n")
+    
+    if inpu == "1":
+        A , b, R, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    if inpu == "2":
+        A , b, R, y_hat = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    if inpu == "3":
+        A , b, R, y_hat = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    if inpu == "4":
+        A , b, R, y_hat = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    if inpu == "5":
+        A , b, R, y_hat = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    accuracy = mse(y, y_hat)
+    
+    print(accuracy)
+    return 0
+
+#   Draft for the run function
+#def train(no_model, n_iter, no_data = 1):
+#    ### no_data : 1 -> housing, 2 -> prostate
+#    # no_model : 1 -> least square regression
+#    #            2 -> 
+#    #            3 ->
+#    #            4 ->
+#    #            5 ->
+#    #            6 ->
+#    
+#    if no_data == 1:
+#        x,y = get_trainable_data(housing_file)
+#    elif no_data == 2:
+#        x,y = get_trainable_data(prostate_file)
+#    else:
+#        raise BaseException
+#    
+#    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y)
+#    
+#    if no_model == 1:
+#        A , b, R, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+#        mse(y, y_hat)
 
 
 
