@@ -166,24 +166,27 @@ def Matrix_Plot(x_data,y_data,labels):
 def Correlation_Matrix(x_data, y_data):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
+    data = data.astype(np.float)
     return np.corrcoef(np.transpose(data))
 
 def Covariance_Matrix(x_data, y_data):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation  
     data = np.concatenate((x_data,y_data),axis = 1)
+    data = data.astype(np.float)
     return np.cov(np.transpose(data))
 
 
 """auteur : Tom Dauve"""
-def PCA_function(data, targets):
-    pca = PCA(n_components = 2)
+def PCA_function(data, targets, N_components = 2 ):
+    pca = PCA(n_components = N_components)
     pc = pca.fit_transform(data, targets)
     plt.scatter(pc[:,0], targets)
     plt.title('target function of PC1')
     plt.show()
-    ax = plt.axes(projection='3d')
-    ax.scatter3D(pc[:,0], pc[:,1], targets)
-    plt.show()
+    if N_components == 2 :
+        ax = plt.axes(projection='3d')
+        ax.scatter3D(pc[:,0], pc[:,1], targets)
+        plt.show()
     return pc
 
 
@@ -295,7 +298,7 @@ def run():
     elif inpu == "prostate":
         file = "data_regression/prostate.data"
         
-    x ,y , labels = get_trainable_data(file)
+    x, y, labels = get_trainable_data(file)
 
     
     inpu = ""
@@ -310,46 +313,18 @@ def run():
     while inpu != "Matrix_Plot" and inpu != "pass" :
         inpu = input("Représentation des composants 2 par 2 ('Matrix_Plot' ou 'pass') : \n")
     if inpu == "Matrix_Plot":
-        """
-<<<<<<< HEAD
-        Matrix_Plot(x, y, labels)
-    elif inpu == "pass" :
-        pass
-    
-    inpu = ""
-    while inpu != "y" and inpu != "n" :
-        inpu = input("Comparer avec PCA et sans ou séparément ('y' ou 'n') : \n")
-    if inpu == "y":
-        MSE_without_PCA = Get_MSE(x,y)
-        x = PCA_function(x, y)
-        x = normalize_data(x)
-        MSE_PCA = Get_MSE(x,y)
-        MSE = np.array([MSE_without_PCA, MSE_PCA])
-    elif inpu == "n" :
-        inpu = ""
-        while inpu != "PCA" and inpu != "pass" :
-            inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
-        if inpu == "PCA":
-            x = PCA_function(x, y)
-            x = normalize_data(x)
-            MSE = Get_MSE(x,y)
-        elif inpu == "pass" :
-            MSE = Get_MSE(x,y)
-    
-    
-    print(MSE)
-    return 0
-=======
-        """
         Matrix_Plot(x, y)
     elif inpu == "pass" :
         pass
+    
     inpu = ""
+    mse_res = "MSE "
     while inpu != "PCA" and inpu != "pass" :
         inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
         if inpu == "PCA":
-            x = PCA_function(x, y)
+            x = PCA_function(x, y, 3)
             x = normalize_data(x)
+            mse_res = mse_res + "PCA "
 
     inpu = ""
     while inpu != "1" and inpu != "2" and inpu != "3" and inpu != "4" and inpu != "5" and inpu != "6":
@@ -362,18 +337,24 @@ def run():
     
     if inpu == "1":
         _, _, _, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "Least_Squares_Regression "
     elif inpu == "2":
         _, _, _, y_hat = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "Ridge_with_CrossVa_Regression "
     elif inpu == "3":
         _, _, _, y_hat = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "Lasso_with_CrossVa_Regression "
     elif inpu == "4":
         _, y_hat = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "SVM_Regression "
     elif inpu == "5":
         _, y_hat = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "Tree_Regression "
     elif inpu == "6":
         _, y_hat = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        mse_res = mse_res + "NN_Regression "
         
-    mse_res = mse(y_test_set, y_hat)
+    mse_res = mse_res + str(mse(y_test_set, y_hat))
     
     print(mse_res)
     return 0
