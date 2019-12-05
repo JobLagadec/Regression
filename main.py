@@ -20,8 +20,6 @@ def load_csv(file_name):
     labels = list(csv_data.columns)
     return data, targets, labels
 
-#housing_data = load_csv(housing_file)
-
 """auteur: Alexis """
 def mean(column):
     l = len(column)
@@ -54,10 +52,6 @@ def normalize_data(data):
         maxes[k] = max(data[:,k])
         res[:,k] = res[:,k]/maxes[k]
     return res
-
-#cleaned_housing_data = clean_csv_data(housing_data)
-#normalized_housing_data = normalize_data(cleaned_housing_data)
-
 
 """
 auteur : Tom Dauve
@@ -105,6 +99,7 @@ def get_trainable_data(file):
 
 
 """ auteur: Pierre-Adrien """
+""" sépare la base donnée en apprentissage et test en utilisant le ratio donnée"""
 def get_train_test_sets(x_data, y_data, train_ratio = 0.75) :
     (nb_rows, nb_col) = np.shape(x_data)
     
@@ -161,6 +156,7 @@ def NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set):
     return reg.score(x_test_set,y_test_set), reg.predict(x_test_set)
 
 """ auteur: Pierre-Adrien """
+""" affiche toutes les comosantes 2 par deux"""
 def Matrix_Plot(x_data,y_data,labels):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation 
     data = np.concatenate((x_data,y_data),axis = 1)
@@ -178,10 +174,6 @@ def Covariance_Matrix(x_data, y_data):
     y_data = np.reshape(y_data, (len(y_data),1)) # necessaire pour concatenation  
     data = np.concatenate((x_data,y_data),axis = 1)
     return np.cov(np.transpose(data))
-
-(x,y,labels) = get_trainable_data(prostate_file)
-(x,y,labels) = get_trainable_data(housing_file) 
-x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
 
 
 """auteur : Tom Dauve"""
@@ -254,7 +246,7 @@ def mse(target, estimation):
     for k in range(n):
         res += (target[k] - estimation[k])**2
     return res/n
-"""
+
 x, y, _ = get_trainable_data(prostate_file)
 l = np.arange(-0.5, 6, 0.1)
 y_hat = kde(l, y, h=0.1)
@@ -269,25 +261,25 @@ print("mean squared error on whole dataset = " + str(mse(y, y_all)))
 plt.scatter(x[:,0], y)
 plt.scatter(x[:,0], y_all, c='r')
 plt.show()
-"""
-def Get_Accuracy(x, y):
+
+def Get_MSE(x, y): """ renvoie mse pour toutes les méthodes de régression"""
     x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
-    accuracy = 6 * [0]
+    MSE = 6 * [0]
     
     _, _, _, prediction = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-    accuracy[0] = mse(y_test_set, prediction)
+    MSE[0] = mse(y_test_set, prediction)
     _, _, _, prediction = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-    accuracy[1] = mse(y_test_set, prediction)
+    MSE[1] = mse(y_test_set, prediction)
     _, _, _, prediction = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-    accuracy[2] = mse(y_test_set, prediction)
+    MSE[2] = mse(y_test_set, prediction)
     _, prediction = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set,kernel="linear")
-    accuracy[3] = mse(y_test_set, prediction)
+    MSE[3] = mse(y_test_set, prediction)
     _, prediction = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-    accuracy[4] = mse(y_test_set, prediction)
+    MSE[4] = mse(y_test_set, prediction)
     _, prediction = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-    accuracy[5] = mse(y_test_set, prediction)
+    MSE[5] = mse(y_test_set, prediction)
     
-    return accuracy
+    return MSE
 
 def run():
     inpu = ""
@@ -322,11 +314,11 @@ def run():
     while inpu != "y" and inpu != "n" :
         inpu = input("Comparer avec PCA et sans ou séparément ('y' ou 'n') : \n")
     if inpu == "y":
-        accuracy_without_PCA = Get_Accuracy(x,y)
+        MSE_without_PCA = Get_MSE(x,y)
         x = PCA_function(x, y)
         x = normalize_data(x)
-        accuracy_PCA = Get_Accuracy(x,y)
-        accuracy = [[accuracy_without_PCA;accuracy_PCA]]
+        MSE_PCA = Get_MSE(x,y)
+        MSE = np.array([MSE_without_PCA, MSE_PCA])
     elif inpu == "n" :
         inpu = ""
         while inpu != "PCA" and inpu != "pass" :
@@ -334,12 +326,12 @@ def run():
         if inpu == "PCA":
             x = PCA_function(x, y)
             x = normalize_data(x)
-            accuracy = Get_Accuracy(x,y)
+            MSE = Get_MSE(x,y)
         elif inpu == "pass" :
-            accuracy = Get_Accuracy(x,y)
+            MSE = Get_MSE(x,y)
     
     
-    print(accuracy)
+    print(MSE)
     return 0
     
     
