@@ -239,6 +239,24 @@ def kde_2D(x, data1, data2, h=0):
         y[j] = sum1/sum2
     return y
 
+"""Auteur: Alexis"""
+#This function takes input x and target y as arguments, from the correlation
+#matrix it takes the feature the most correlated to y and apply kde estimation on it
+def train_kde(x, y, h=0):
+    M = Correlation_Matrix(x ,y)[-1]
+    index = 0
+    max_coeff = 0
+    for k in range(len(M)-1):
+        if (abs(M[k])>max_coeff):
+            max_coeff = abs(M[k])
+            index = k
+    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
+    x_train = x_train_set[:,k]
+    x_test = x_test_set[:,k]
+    y_estimated = kde_2D(x_test, x_train, y_train_set, h)
+    test_error = mse(y_test_set, y_estimated)
+    return(test_error)
+    
 """auteur: Alexis """   
 #mean square error function
 def mse(target, estimation):
@@ -358,13 +376,3 @@ def run():
     
     print(mse_res)
     return 0
-
-
-
-
-
-
-
-
-    
-    
