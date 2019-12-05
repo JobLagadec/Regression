@@ -20,13 +20,15 @@ def load_csv(file_name):
     labels = list(csv_data.columns)
     return data, targets, labels
 
-"""auteur: Alexis """
+"""auteurs: Alexis, Corentin """
 def mean(column):
     l = len(column)
     mean = 0
     for k in range(l):
         if(np.isnan(column[k]) == False):
             mean += column[k]
+        else: #we should not consider the unknown elements
+            l-=1
     return mean/l
 
 """auteur: Alexis """
@@ -77,10 +79,6 @@ def clean_data_data(data):
         else:
             data[i][-1] = 0
     return np.array(data, dtype = float)
-
-"""
-prostate_data, prostate_labels = load_data_data(prostate_file)
-normalized_prostate_data = normalize_data(prostate_data)"""
 
 """auteur: Alexis """ 
 def get_trainable_data(file):
@@ -247,22 +245,26 @@ def mse(target, estimation):
         res += (target[k] - estimation[k])**2
     return res/n
 
-x, y, _ = get_trainable_data(prostate_file)
-l = np.arange(-0.5, 6, 0.1)
-y_hat = kde(l, y, h=0.1)
+def test(prostate_file):
+    x, y, _ = get_trainable_data(prostate_file)
+    l = np.arange(-0.5, 6, 0.1)
+    y_hat = kde(l, y, h=0.1)
+    
+    plt.plot(l, y_hat)
+    plt.show()
+    plt.scatter(x[:,0], y)
+    plt.show()
+    
+    y_all = kde_2D(x[:,0], x[:,0], y, h=0.05)
+    print("mean squared error on whole dataset = " + str(mse(y, y_all)))
+    plt.scatter(x[:,0], y)
+    plt.scatter(x[:,0], y_all, c='r')
+    plt.show()
+    return 0
 
-plt.plot(l, y_hat)
-plt.show()
-plt.scatter(x[:,0], y)
-plt.show()
-
-y_all = kde_2D(x[:,0], x[:,0], y, h=0.05)
-print("mean squared error on whole dataset = " + str(mse(y, y_all)))
-plt.scatter(x[:,0], y)
-plt.scatter(x[:,0], y_all, c='r')
-plt.show()
-
-def Get_MSE(x, y): """ renvoie mse pour toutes les méthodes de régression"""
+""" Pierre-Adrien """
+""" renvoie mse pour toutes les méthodes de régression"""
+def Get_MSE(x, y):  # pas utilisé
     x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
     MSE = 6 * [0]
     
@@ -281,6 +283,7 @@ def Get_MSE(x, y): """ renvoie mse pour toutes les méthodes de régression"""
     
     return MSE
 
+""" Corentin et Pierre-Adrien """
 def run():
     inpu = ""
     while inpu != "housing" and inpu != "prostate" and inpu != "exit" :
@@ -293,6 +296,7 @@ def run():
         file = "data_regression/prostate.data"
         
     x ,y , labels = get_trainable_data(file)
+
     
     inpu = ""
     while inpu != "Covariance_Matrix" and inpu != "pass" :
@@ -306,6 +310,8 @@ def run():
     while inpu != "Matrix_Plot" and inpu != "pass" :
         inpu = input("Représentation des composants 2 par 2 ('Matrix_Plot' ou 'pass') : \n")
     if inpu == "Matrix_Plot":
+        """
+<<<<<<< HEAD
         Matrix_Plot(x, y, labels)
     elif inpu == "pass" :
         pass
@@ -333,18 +339,44 @@ def run():
     
     print(MSE)
     return 0
+=======
+        """
+        Matrix_Plot(x, y)
+    elif inpu == "pass" :
+        pass
+    inpu = ""
+    while inpu != "PCA" and inpu != "pass" :
+        inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
+        if inpu == "PCA":
+            x = PCA_function(x, y)
+            x = normalize_data(x)
+
+    inpu = ""
+    while inpu != "1" and inpu != "2" and inpu != "3" and inpu != "4" and inpu != "5" and inpu != "6":
+        if inpu == "help":
+            inpu = input("no_model : 1 -> least square regression\n\t\t 2 -> ridge with cross validation\n\t\t 3 -> lasso with cross validation\n\t\t 4 -> SVM regression\n\t\t 5 -> tree regression\n\t\t 6 -> neural network regression\n")
+        else:
+            inpu = input("Choose your model (n° : 1 - 6), or type 'help' for more information :\n")
+            
+    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
     
+    if inpu == "1":
+        _, _, _, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    elif inpu == "2":
+        _, _, _, y_hat = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    elif inpu == "3":
+        _, _, _, y_hat = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    elif inpu == "4":
+        _, y_hat = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    elif inpu == "5":
+        _, y_hat = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+    elif inpu == "6":
+        _, y_hat = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+        
+    mse_res = mse(y_test_set, y_hat)
     
-    
-
-
-
-
-
-
-
-
-
+    print(mse_res)
+    return 0
 
 
 
