@@ -324,10 +324,10 @@ def run():
 
     
     inpu = ""
-    while inpu != "Covariance_Matrix" and inpu != "pass" : # choix d'afficher la matrice de covariance ou non
-        inpu = input("Matrice de covariance ('Covariance_Matrix' ou 'pass') : \n")
-    if inpu == "Covariance_Matrix":
-        print(Covariance_Matrix(x, y))
+    while inpu != "Correlation_Matrix" and inpu != "pass" : # choix d'afficher la matrice de corrélation ou non
+        inpu = input("Matrice de correlation ('Correlation_Matrix' ou 'pass') : \n")
+    if inpu == "Correlation_Matrix":
+        print(Correlation_Matrix(x, y))
     elif inpu == "pass" :
         pass
     
@@ -383,7 +383,7 @@ def run():
             
         elif inpu == "7":
             y_hat,_ = train_kde(x_feature_selection , y, h=0.025)
-            mse_res = mse_header + "Kernel density estimator"
+            mse_res = mse_header + "Kernel density estimator "
         
         if inpu != "exit" :
             mse_res = mse_res + str(mse(y_test_set, y_hat))
