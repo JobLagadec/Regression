@@ -177,6 +177,7 @@ def Covariance_Matrix(x_data, y_data):
 
 
 """auteur : Tom Dauve"""
+# PCA pour réduire le nombre de composants
 def PCA_function(data, targets, N_components = 2 ):
     pca = PCA(n_components = N_components)
     pc = pca.fit_transform(data, targets)
@@ -287,22 +288,25 @@ def Get_MSE(x, y):  # pas utilisé
     return MSE
 
 """ Corentin et Pierre-Adrien """
+""" Interface utiliseur : permet de choisir la base de donnée, des représentation graphique, matrice de covariance, 
+                        l'utilisation ou non de sélection de composants (PCA), choix de la méthode de régression
+"""
 def run():
     inpu = ""
-    while inpu != "housing" and inpu != "prostate" and inpu != "exit" :
+    while inpu != "housing" and inpu != "prostate" and inpu != "exit" : # choix de la base de donnée
         inpu = input("Choisir une base de donnée ('housing' ou 'prostate') ou 'exit': \n")
     if inpu == "exit":
-        return
+        return "END"
     elif inpu == "housing" :
         file = "data_regression/HousingData.csv"
     elif inpu == "prostate":
         file = "data_regression/prostate.data"
         
-    x, y, labels = get_trainable_data(file)
+    x, y, labels = get_trainable_data(file) # extrait et traite les données de la base de données
 
     
     inpu = ""
-    while inpu != "Covariance_Matrix" and inpu != "pass" :
+    while inpu != "Covariance_Matrix" and inpu != "pass" : # choix d'afficher la matrice de covariance ou non
         inpu = input("Matrice de covariance ('Covariance_Matrix' ou 'pass') : \n")
     if inpu == "Covariance_Matrix":
         print(Covariance_Matrix(x, y))
@@ -310,54 +314,60 @@ def run():
         pass
     
     inpu = ""
-    while inpu != "Matrix_Plot" and inpu != "pass" :
+    while inpu != "Matrix_Plot" and inpu != "pass" :# choix d'afficher une représentation 2 à 2 de tous les composants
         inpu = input("Représentation des composants 2 par 2 ('Matrix_Plot' ou 'pass') : \n")
     if inpu == "Matrix_Plot":
         Matrix_Plot(x, y)
     elif inpu == "pass" :
         pass
     
-    inpu = ""
-    mse_res = "MSE "
-    while inpu != "PCA" and inpu != "pass" :
-        inpu = input("Sélection de composants ('PCA' ou 'pass') : \n")
-        if inpu == "PCA":
-            x = PCA_function(x, y, 3)
-            x = normalize_data(x)
-            mse_res = mse_res + "PCA "
 
+    feature_selection = ""
+    mse_header = "MSE "
+    while feature_selection != "PCA" and feature_selection != "None" : # utilisation ou non de la PCA
+        feature_selection = input("Sélection de composants ('PCA' ou 'None') : \n")
+        if feature_selection == "PCA":
+            x_feature_selection = PCA_function(x, y, 'mle') # mle -> programme choisit le nombre automatiquement de composants à garder
+            x_feature_selection = normalize_data(x_feature_selection)
+            mse_header = mse_header + "PCA "
+        else :
+            x_feature_selection = x
+    
+    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x_feature_selection, y, train_ratio = 0.75) # création test/train set
+    
     inpu = ""
-    while inpu != "1" and inpu != "2" and inpu != "3" and inpu != "4" and inpu != "5" and inpu != "6":
-        if inpu == "help":
-            inpu = input("no_model : 1 -> least square regression\n\t\t 2 -> ridge with cross validation\n\t\t 3 -> lasso with cross validation\n\t\t 4 -> SVM regression\n\t\t 5 -> tree regression\n\t\t 6 -> neural network regression\n")
-        else:
-            inpu = input("Choose your model (n° : 1 - 6), or type 'help' for more information :\n")
-            
-    x_train_set , y_train_set , x_test_set , y_test_set = get_train_test_sets(x, y, train_ratio = 0.75)
-    
-    if inpu == "1":
-        _, _, _, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "Least_Squares_Regression "
-    elif inpu == "2":
-        _, _, _, y_hat = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "Ridge_with_CrossVa_Regression "
-    elif inpu == "3":
-        _, _, _, y_hat = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "Lasso_with_CrossVa_Regression "
-    elif inpu == "4":
-        _, y_hat = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "SVM_Regression "
-    elif inpu == "5":
-        _, y_hat = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "Tree_Regression "
-    elif inpu == "6":
-        _, y_hat = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
-        mse_res = mse_res + "NN_Regression "
+    while inpu != "exit": # boucle pour pouvoir afficher successivement les résultats de différentes méthodes de régression
+        inpu = ""
+        while inpu != "1" and inpu != "2" and inpu != "3" and inpu != "4" and inpu != "5" and inpu != "6" and inpu != "exit": # choix méthodes de régression
+            if inpu == "help":
+                inpu = input("no_model : 1 -> least square regression\n\t\t 2 -> ridge with cross validation\n\t\t 3 -> lasso with cross validation\n\t\t 4 -> SVM regression\n\t\t 5 -> tree regression\n\t\t 6 -> neural network regression\n")
+            else:
+                inpu = input("Choose your model (n° : 1 - 6), or type 'help' for more information or 'exit' :\n")
         
-    mse_res = mse_res + str(mse(y_test_set, y_hat))
+        if inpu == "1":
+            _, _, _, y_hat = Least_Squares_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "Least_Squares_Regression "
+        elif inpu == "2":
+            _, _, _, y_hat = Ridge_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "Ridge_with_CrossVa_Regression "
+        elif inpu == "3":
+            _, _, _, y_hat = Lasso_with_CrossVa_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "Lasso_with_CrossVa_Regression "
+        elif inpu == "4":
+            _, y_hat = SVM_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "SVM_Regression "
+        elif inpu == "5":
+            _, y_hat = Tree_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "Tree_Regression "
+        elif inpu == "6":
+            _, y_hat = NN_Regression(x_train_set , y_train_set , x_test_set , y_test_set)
+            mse_res = mse_header + "NN_Regression "
+        
+        if inpu != "exit" :
+            mse_res = mse_res + str(mse(y_test_set, y_hat))
+            print(mse_res)
     
-    print(mse_res)
-    return 0
+    return "END"
 
 
 
